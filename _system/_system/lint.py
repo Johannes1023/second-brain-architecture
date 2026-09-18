@@ -29,12 +29,13 @@ for p in files:
     body_no_code = re.sub(r"```.*?```", "", body, flags=re.S)
     body_no_code = re.sub(r"`[^`\n]*`", "", body_no_code)
     is_rules = rel.name in ("AGENTS.md", "CLAUDE.md") or rel.parts[0] == "_system"
+    is_repo_doc = rel.name in ("CLAUDE.md", "README.md")
 
     if len(rel.parts) > 2:
         issues.append(f"{rel}: nested deeper than one folder")
     if "—" in p.name:
         issues.append(f"{rel}: em dash in file name")
-    if rel.name != "CLAUDE.md":
+    if not is_repo_doc:
         missing = [k for k in REQUIRED if k not in meta]
         if missing:
             issues.append(f"{rel}: frontmatter missing {', '.join(missing)}")

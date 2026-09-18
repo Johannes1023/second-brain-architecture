@@ -45,13 +45,17 @@ Never scan the whole vault for a general question. Ignore `Archive/`, `_export/`
 | `_export/` | Generated single-file exports, for a model with no file access. Never edit by hand |
 | `Properties/` | One note per property or unit: object data, valuation, ownership |
 | `Tenants/` | One note per tenant: lease terms, contact, bank details for rent, handover, correspondence |
-| `Finance/` | Rent roll, operating-cost statements, tax-relevant figures |
-| `Maintenance/` | Repairs, contractor history, warranties (create on first use) |
-| `Legal/` | Lease-law references, index-rent mechanics (create on first use) |
+| `Finance/` | Rent roll, rent receipts, bank statements, loan interest and principal payments, financial monitoring |
+| `Taxes/` | Tax-relevant figures and documents: depreciation, deductible expenses, tax-return preparation notes (create on first use) |
+| `Maintenance/` | Repairs, contractor history, warranties, related expenses (create on first use) |
+| `Legal/` | Lease-law references, index-rent mechanics, rent-increase calculations (create on first use) |
+| `Property Management/` | Correspondence with an external building manager (WEG-Verwalter / Hausverwaltung), when a property sits in a shared building (create on first use) |
 | `Co-Owners/` | Ownership shares, decision log, cost-split agreements (create on first use) |
 | `Archive/` | Only if needed: superseded notes, prefix `ARCHIVED` |
 
 Rules: no sub-folders inside areas. If an area grows, split into more files with clear names (`Unit - Ground Floor.md`), not into folders. New top-level folders only after a deliberate decision.
+
+`Property Management/` is not this vault's own role, this vault already is the owners' single source of truth for the tenancy side of the business (see the README). It holds correspondence with a *separate*, external party: a professional building or WEG manager, where one exists for a given property. Skip it entirely for a property with no external manager.
 
 ## 3. Hard rules
 
@@ -79,7 +83,7 @@ modified: YYYY-MM-DD
 last_verified: YYYY-MM-DD
 review: monthly | quarterly | yearly
 status: draft | active | evergreen | archived
-area: Properties | Tenants | Finance | Maintenance | Legal | Co-Owners | System
+area: Properties | Tenants | Finance | Taxes | Maintenance | Legal | Property Management | Co-Owners | System
 aliases: []
 tags: []
 ---
@@ -87,7 +91,7 @@ tags: []
 
 - `review`: how often `last_verified` must be refreshed. `lint.py` flags overdue notes.
 - `deadline` (optional, `YYYY-MM-DD`): a date-bound item, a notice period, a statement due date, the earliest date for the next index-rent adjustment. `lint.py` flags any `deadline` inside its lookahead window.
-- Tenant notes add `lease_start` / `lease_end`. Maintenance notes add `contractor` and `warranty_until`.
+- Tenant notes add `lease_start` / `lease_end`. Maintenance notes add `contractor` and `warranty_until`. Tax notes add `tax_year`. Property Management notes add `contact`.
 
 ## 5. Links and syntax
 
@@ -115,7 +119,22 @@ tags: []
 
 Source of truth: this vault. Nothing else holds a newer version of these facts, because nothing else ever receives a copy.
 
-## 8. Tool notes
+## 8. Beyond chat: this vault as automation input
+
+A conversational agent is not the only consumer. Narrower, single-purpose automations, still running locally, read the same notes as their structured knowledge base instead of parsing the fact out of an email thread or a spreadsheet each time. Because every note sits in a fixed area with a fixed frontmatter schema and clearly labeled fields, an automation can be scoped to read only the area(s) its task needs, the same "read only what the task needs" discipline as rule 1.
+
+| Automation | Reads |
+|---|---|
+| Draft the annual operating-cost statement (Nebenkostenabrechnung) | The unit's `Properties/` note (living area, allocation key), the tenant's `Tenants/` note (advance payments, move-in/move-out dates), the incurred costs in `Finance/` |
+| Calculate an index-linked rent increase (Mieterhöhung) | The tenant's `Tenants/` note (lease start, current rent), the index-rent rule in `Legal/`, the rent history in `Finance/` |
+| Monitor rent receipts, loan interest and principal payments | `Finance/` |
+| Track repairs and related expenses | `Maintenance/`, cross-linked to the relevant `Properties/` note and, once paid, the `Finance/` figures |
+| Prepare tax-relevant figures | `Taxes/`, plus the rent and cost history already recorded in `Finance/` |
+| Track correspondence with a building's external manager | `Property Management/` |
+
+An automation that writes back to the vault follows the same rules as a human editor: one fact in one place, every write dated, `modified` and `last_verified` updated, nothing written outside the note it was scoped to touch.
+
+## 9. Tool notes
 
 - **LM Studio (recommended):** point it at this folder if you are running an agent framework with file access, or paste `_export/PORTFOLIO.md` into the system prompt if you are using the plain chat UI with a model like Gemma.
 - **Ollama or llama.cpp with a local agent script:** follow the read order above; the convention does not require any particular runtime.

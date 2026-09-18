@@ -43,10 +43,10 @@ Everything the tenancy relationship actually requires, at the resolution that re
 
 - Owner identity, address, and the role each owner plays (see `Co-Owners/`)
 - Tenant name, contact details, lease terms, deposit amount and where it is held
-- Bank details for rent and deposit transfers
+- Bank details for rent and deposit transfers, rent receipts, loan interest and principal payments
 - Invoices, receipts, and contractor details for maintenance
-- Tax-relevant figures: rent history, operating-cost statements, depreciation
-- Correspondence history and handover protocols
+- Tax-relevant figures: rent history, operating-cost statements, depreciation, deductible expenses (see `Taxes/`)
+- Correspondence history and handover protocols, including correspondence with an external building manager where one exists (see `Property Management/`)
 
 There is no separate "restricted" tier and no export-time redaction, because every export this vault produces is for a model running on the same hardware the data already lives on. If you ever adapt this template to also work with a cloud tool, that assumption breaks, and you would need to reintroduce a filtering step, not remove one.
 
@@ -64,9 +64,11 @@ vault/
 ├── _export/        # Generated single-file exports, for a model with no file access
 ├── Properties/     # One note per property or unit: object data, valuation, ownership
 ├── Tenants/        # One note per tenant: lease terms, bank details, correspondence
-├── Finance/        # Rent roll, operating-cost statements, tax-relevant figures
-├── Maintenance/    # Repairs, contractor history, warranties (create on first use)
-├── Legal/          # Lease-law references, index-rent mechanics (create on first use)
+├── Finance/        # Rent roll, rent receipts, bank statements, loan payments, monitoring
+├── Taxes/          # Depreciation, deductible expenses, tax-return prep (create on first use)
+├── Maintenance/    # Repairs, contractor history, warranties, related expenses (create on first use)
+├── Legal/          # Lease-law references, index-rent mechanics, rent increases (create on first use)
+├── Property Management/  # Correspondence with an external building manager, if any (create on first use)
 ├── Co-Owners/      # Ownership shares, decision log (create on first use)
 └── Archive/        # Superseded leases and closed cases (create on demand)
 ```
@@ -83,7 +85,7 @@ modified: YYYY-MM-DD
 last_verified: YYYY-MM-DD
 review: monthly | quarterly | yearly
 status: draft | active | evergreen | archived
-area: Properties | Tenants | Finance | Maintenance | Legal | Co-Owners | System
+area: Properties | Tenants | Finance | Taxes | Maintenance | Legal | Property Management | Co-Owners | System
 aliases: []
 tags: []
 ---
@@ -91,7 +93,7 @@ tags: []
 
 - `review` feeds the linter: a note tagged `review: quarterly` that hasn't been `last_verified` in 92 days gets flagged as stale, which catches a rent figure that no longer matches the current lease.
 - `deadline` (optional, `YYYY-MM-DD`) drives date-bound work: notice periods, statement due dates, index-rent adjustment windows. The linter flags any `deadline` inside a lookahead window, and flags one already passed.
-- Tenant notes add `lease_start` / `lease_end`. Maintenance notes add `contractor` and `warranty_until`.
+- Tenant notes add `lease_start` / `lease_end`. Maintenance notes add `contractor` and `warranty_until`. Tax notes add `tax_year`. Property Management notes add `contact`.
 
 There used to be a `sensitivity` field here (`shared` / `owner-only` / `restricted`) in an earlier, cloud-hybrid version of this design. It existed only to control what a redaction step removed before an export left the machine. Once nothing ever leaves the machine, that field has no job left to do, so it is gone. If you fork this for a setup where you do sometimes want a cloud tool involved, that is the field you would need to bring back, along with the export-time filtering it used to drive.
 
@@ -109,6 +111,10 @@ flowchart TD
 ```
 
 This bounds a typical interaction to four file reads plus whatever notes the task actually needs, instead of a scan that grows with the portfolio. The index grows by one line per note, which is why the catalog stores a one-line `description` rather than a summary.
+
+### Beyond chat: a knowledge base for narrower automations
+
+A conversational agent is one consumer of this vault, not the only one. The same notes, fixed areas, fixed frontmatter, clearly labeled fields, are also built to be read by narrower, single-purpose automations: drafting the annual operating-cost statement from a property's living area and a tenant's advance payments, calculating an index-linked rent increase from a lease's start date and the applicable index-rent rule, monitoring rent receipts and loan interest and principal payments, tracking repairs and their costs, assembling the figures a tax return needs, or logging correspondence with an external building manager. Each automation is scoped to the area(s) it needs, `AGENTS.md` section 8 lists which, rather than parsing free text out of an inbox each time.
 
 ## Getting started
 

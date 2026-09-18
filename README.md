@@ -176,5 +176,3 @@ Managing rental property without a management company means being the accountant
 ---
 
 *This document describes the system design and conventions only. It intentionally contains no personal data, tenant information, property details, or real file names from the underlying vault, so it can be reused as a template for building an equivalent system from scratch.*
-# second-brain-architecture
-Tool-agnostic AI knowledge base for property management: plain Markdown, enforced schema, sensitivity tiers, dependency-free Python tooling.

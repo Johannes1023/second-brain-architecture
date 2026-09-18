@@ -16,7 +16,7 @@ tags: [meta]
 
 ## Structure
 
-One folder level only: `Properties`, `Tenants`, `Finance`, `Maintenance`, `Legal`, `Co-Owners`, plus `_system` (AI rules, templates, scripts) and `_export` (generated). `Archive` only when needed.
+One folder level only: `Properties`, `Tenants`, `Finance`, `Taxes`, `Maintenance`, `Legal`, `Property Management`, `Co-Owners`, plus `_system` (AI rules, templates, scripts) and `_export` (generated). `Archive` only when needed.
 
 ## Catalog
 
